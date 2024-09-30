@@ -7,16 +7,16 @@ from glob import glob
 import torch, face_detection
 from models import Wav2Lip
 import platform
-
+import modal
 parser = argparse.ArgumentParser(description='Inference code to lip-sync videos in the wild using Wav2Lip models')
 
 parser.add_argument('--checkpoint_path', type=str, 
-					help='Name of saved checkpoint to load weights from', required=True)
+					help='Name of saved checkpoint to load weights from', default="/checkpoints/wav2lip_gan.pth")
 
 parser.add_argument('--face', type=str, 
-					help='Filepath of video/image that contains faces to use', required=True)
+					help='Filepath of video/image that contains faces to use', default="/sample_data/input_video.mp4")
 parser.add_argument('--audio', type=str, 
-					help='Filepath of video/audio file to use as raw audio source', required=True)
+					help='Filepath of video/audio file to use as raw audio source', default="/sample_data/input_audio.wav")
 parser.add_argument('--outfile', type=str, help='Video path to save result. See default for an e.g.', 
 								default='results/result_voice.mp4')
 
@@ -177,7 +177,6 @@ def load_model(path):
 
 	model = model.to(device)
 	return model.eval()
-
 def main():
 	if not os.path.isfile(args.face):
 		raise ValueError('--face argument must be a valid path to video/image file')
@@ -276,5 +275,5 @@ def main():
 	command = 'ffmpeg -y -i {} -i {} -strict -2 -q:v 1 {}'.format(args.audio, 'temp/result.avi', args.outfile)
 	subprocess.call(command, shell=platform.system() != 'Windows')
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 	main()
